@@ -2,20 +2,24 @@
 -- Correr después de schema.sql.
 
 -- ── helpers de sesión (usados por rls.sql) ──────────────────────────
+-- security definer + search_path fijo: sin esto, profiles_select (que
+-- también llama a current_rol()) entra en recursión infinita consigo
+-- misma al leer profiles desde aquí adentro ("stack depth limit
+-- exceeded" al guardar cualquier cambio, no solo en folios cerrados).
 create or replace function current_username()
-returns text language sql stable
+returns text language sql stable security definer set search_path = public
 as $$
   select username from profiles where id = auth.uid();
 $$;
 
 create or replace function current_rol()
-returns text language sql stable
+returns text language sql stable security definer set search_path = public
 as $$
   select rol from profiles where id = auth.uid();
 $$;
 
 create or replace function current_facilitador_pmo()
-returns text language sql stable
+returns text language sql stable security definer set search_path = public
 as $$
   select facilitador_pmo from profiles where id = auth.uid();
 $$;
@@ -62,7 +66,7 @@ $$;
 -- sobre registros_8d, así el cliente nunca escribe directo en bitacora
 -- (evita que alguien falsifique su propio registro de auditoría).
 create or replace function log_bitacora()
-returns trigger language plpgsql security definer as $$
+returns trigger language plpgsql security definer set search_path = public as $$
 declare
   k text;
   old_v text;
