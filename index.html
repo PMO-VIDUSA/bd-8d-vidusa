@@ -1113,7 +1113,7 @@ function apiPost(payload) {
     if (res.status === 'error' && res.message) toast(res.message, 'er');
     return res;
   })
-  .catch(() => { setSyncState('err'); return null; });
+  .catch(err => { if (window.Sentry) Sentry.captureException(err); setSyncState('err'); return null; });
 }
 
 // Igual que apiPost pero se usa al crear un registro — el ID_Registro/Folio
@@ -1142,7 +1142,8 @@ function fetchAllRecs() {
         setSyncState('err');
       }
     })
-    .catch(() => {
+    .catch(err => {
+      if (window.Sentry) Sentry.captureException(err);
       toast('Error al conectar con el servidor. Verifica tu conexión.', 'er');
       setSyncState('err');
     })
@@ -1191,6 +1192,10 @@ async function doLogin() {
       lerr.style.display = 'block';
     }
   } catch (err) {
+    // Se reporta a Sentry porque este catch normalmente se dispara por una
+    // falla de red del lado del usuario (no de la cuenta) — sin esto, no
+    // había forma de ver el detalle técnico de por qué falló su conexión.
+    if (window.Sentry) Sentry.captureException(err);
     lerr.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error al conectar con el servidor. Intenta de nuevo.';
     lerr.style.display = 'block';
   } finally {
@@ -1586,7 +1591,8 @@ function renderBitacora() {
           <td>${esc(e.Detalle)}</td>
         </tr>`).join('');
     })
-    .catch(() => {
+    .catch(err => {
+      if (window.Sentry) Sentry.captureException(err);
       tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--muted)">Error al conectar con el servidor.</td></tr>';
     });
 }
