@@ -945,10 +945,6 @@ th.f3{min-width:160px;width:160px}
 // ═══════════════════════════════════════════════
 // CONFIG
 // ═══════════════════════════════════════════════
-// APPS_SCRIPT_URL solo la sigue usando addUser() (gestión de usuarios,
-// Post-MVP: se migrará a Supabase Auth Admin en la Fase 7 del SPEC).
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwjBz4zCUi1Y3Ikb3RaZauk8m4tOC1NltIkkqmcGvdHBS-YDSmx5luz9ua23SSTXaJ9/exec';
-
 const CONFIGURED = true;
 
 // ═══════════════════════════════════════════════
@@ -1893,64 +1889,19 @@ function deleteRec(id) {
 // ═══════════════════════════════════════════════
 // USERS
 // ═══════════════════════════════════════════════
-async function addUser() {
-  const username = (document.getElementById('nu-username').value || '').trim();
-  const password = (document.getElementById('nu-password').value || '').trim();
-  const nombre   = (document.getElementById('nu-nombre').value   || '').trim();
-  const rol      = (document.getElementById('nu-rol').value      || '').trim();
-  if (!username || !password || !nombre || !rol) { toast('Completa todos los campos', 'er'); return; }
-  const btn = document.getElementById('btn-add-user');
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando…';
-  try {
-    const res  = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ _method: 'ADD_USER', username, password, nombre, rol, token: CU ? CU.token : '' }),
-    });
-    const data = await res.json();
-    if (data.status === 'ok') {
-      toast('Usuario "' + username + '" creado correctamente');
-      ['nu-username','nu-password','nu-nombre','nu-rol'].forEach(id => { document.getElementById(id).value = ''; });
-    } else {
-      toast(data.message || 'Error al crear usuario', 'er');
-    }
-  } catch(e) {
-    toast('Error al conectar con el servidor', 'er');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-user-plus"></i> Guardar Usuario';
-  }
-}
-
 function renderUsers() {
   const isAdmin = CU && (CU.role||'').toLowerCase() === 'admin';
   const addForm = isAdmin ? `
-    <div style="padding:24px;background:rgba(255,255,255,0.85);border:1px solid var(--border);border-radius:var(--r);max-width:600px;box-shadow:0 2px 8px rgba(43,46,58,0.06);margin-bottom:18px">
-      <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:16px">
-        <i class="fas fa-user-plus" style="color:var(--primary);margin-right:8px"></i>Agregar Nuevo Usuario
+    <div style="padding:24px;background:var(--card-solid);border:1px solid var(--warn-tx);max-width:600px;margin-bottom:18px">
+      <div style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--warn-tx);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px">
+        <i class="fas fa-triangle-exclamation" style="margin-right:8px"></i>Alta de usuarios — pendiente de migrar
       </div>
-      <div class="fgrid">
-        <div class="fgroup"><label>Username</label><input id="nu-username" placeholder="usuario123" autocomplete="off" /></div>
-        <div class="fgroup"><label>Contraseña</label><input id="nu-password" type="password" placeholder="••••••••" autocomplete="new-password" /></div>
-        <div class="fgroup"><label>Nombre Completo</label><input id="nu-nombre" placeholder="Nombre Apellido" /></div>
-        <div class="fgroup"><label>Rol</label>
-          <select id="nu-rol">
-            <option value="">-- Seleccionar --</option>
-            <option>Admin</option>
-            <option>Editor</option>
-            <option>Viewer</option>
-          </select>
-        </div>
-      </div>
-      <button class="btn btn-primary" id="btn-add-user" onclick="addUser()" style="margin-top:4px">
-        <i class="fas fa-user-plus"></i> Guardar Usuario
-      </button>
+      <p style="color:var(--text2);line-height:1.7">El alta de usuarios desde aquí todavía no está conectada a Supabase (apuntaba al Apps Script viejo, ya dado de baja). Por ahora, pídele a quien administra el repo que cree el usuario a mano en Supabase → Authentication → Users, y su fila correspondiente en la tabla <code>profiles</code>.</p>
     </div>` : '';
   document.getElementById('user-grid').innerHTML = addForm + `
-    <div style="padding:24px;background:rgba(255,255,255,0.85);border:1px solid var(--border);border-radius:var(--r);color:var(--muted);line-height:1.8;max-width:600px;box-shadow:0 2px 8px rgba(43,46,58,0.06)">
-      <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:10px">
-        <i class="fas fa-users" style="color:var(--primary);margin-right:8px"></i>Usuarios gestionados en Google Sheets
+    <div style="padding:24px;background:var(--card-solid);border:1px solid var(--border);color:var(--muted);line-height:1.8;max-width:600px">
+      <div style="font-family:var(--mono);font-size:14px;font-weight:600;color:var(--text);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px">
+        <i class="fas fa-users" style="color:var(--primary);margin-right:8px"></i>Usuarios gestionados en Supabase
       </div>
       <p>Para modificar o eliminar usuarios, edita la tabla <strong style="color:var(--text)">profiles</strong> directamente en el proyecto de Supabase vinculado.</p>
       <p style="margin-top:14px">Roles válidos: <span class="rbadge" style="color:var(--accent);border:1px solid var(--accent);font-size:11px">Admin</span> &nbsp;<span class="rbadge" style="color:#8a7a3e;border:1px solid #8a7a3e;font-size:11px">Editor</span> &nbsp;<span class="rbadge" style="color:var(--muted);border:1px solid var(--border);font-size:11px">Viewer</span></p>
