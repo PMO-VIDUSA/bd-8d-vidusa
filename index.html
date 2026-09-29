@@ -1196,7 +1196,12 @@ async function doLogin() {
     // falla de red del lado del usuario (no de la cuenta) — sin esto, no
     // había forma de ver el detalle técnico de por qué falló su conexión.
     if (window.Sentry) Sentry.captureException(err);
-    lerr.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error al conectar con el servidor. Intenta de nuevo.';
+    // Se muestra el error técnico real (no solo el mensaje genérico) para
+    // poder diagnosticar sin depender de la consola del navegador — en
+    // campo, la mayoría solo puede mandar una foto de la pantalla.
+    const detalle = err && err.message ? esc(err.message) : '';
+    lerr.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error al conectar con el servidor. Intenta de nuevo.'
+      + (detalle ? `<br><span style="font-family:var(--mono);font-size:10.5px;opacity:.75">${detalle}</span>` : '');
     lerr.style.display = 'block';
   } finally {
     btn.disabled = false;
