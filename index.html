@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 /* ═══════════════════════════════════════════════
    VIDUSA PMO DESIGN SYSTEM
@@ -885,13 +886,19 @@ th.f3{min-width:160px;width:160px}
 
 <div id="toasts"></div>
 
+<script src="js/supabaseClient.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/registros.js"></script>
+<script src="js/bitacora.js"></script>
 <script>
 // ═══════════════════════════════════════════════
-// CONFIG  ← paste your deployed Web App URL here
+// CONFIG
 // ═══════════════════════════════════════════════
+// APPS_SCRIPT_URL solo la sigue usando addUser() (gestión de usuarios,
+// Post-MVP: se migrará a Supabase Auth Admin en la Fase 7 del SPEC).
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwjBz4zCUi1Y3Ikb3RaZauk8m4tOC1NltIkkqmcGvdHBS-YDSmx5luz9ua23SSTXaJ9/exec';
 
-const CONFIGURED = APPS_SCRIPT_URL !== 'PASTE_YOUR_URL_HERE';
+const CONFIGURED = true;
 
 // ═══════════════════════════════════════════════
 // SCHEMA
@@ -1041,21 +1048,16 @@ function handleSessionError(message) {
 }
 
 function apiPost(payload) {
-  if (!CONFIGURED) return Promise.resolve(null);
   setSyncState('syncing');
-  return fetch(APPS_SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ ...payload, token: CU ? CU.token : '' }),
-  })
-  .then(r => r.json())
-  .then(res => {
+  const method = payload._method || 'POST';
+  let p;
+  if (method === 'PUT') p = sbActualizarRegistro(payload);
+  else if (method === 'DELETE') p = sbEliminarRegistro(payload.ID_Registro);
+  else p = sbCrearRegistro(payload);
+
+  return p.then(res => {
     setSyncState('ok');
-    if (res.status === 'error' && /sesión/i.test(res.message || '')) {
-      handleSessionError(res.message);
-    } else if (res.status === 'error' && res.message) {
-      toast(res.message, 'er');
-    }
+    if (res.status === 'error' && res.message) toast(res.message, 'er');
     return res;
   })
   .catch(() => { setSyncState('err'); return null; });
@@ -1073,23 +1075,17 @@ function apiCreate(payload) {
 // ═══════════════════════════════════════════════
 function fetchAllRecs() {
   DB = loadCache();
-  if (!CONFIGURED) return;
   const btn = document.getElementById('btn-refresh');
   if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; }
   setSyncState('syncing');
-  const url = APPS_SCRIPT_URL + '?token=' + encodeURIComponent(CU ? CU.token : '');
-  fetch(url)
-    .then(r => r.json())
+  sbListarRegistros()
     .then(data => {
       if (data.status === 'ok' && Array.isArray(data.data)) {
         saveCache(data.data);
         refreshDash();
         setSyncState('ok');
-      } else if (/sesión/i.test(data.message || '')) {
-        setSyncState('err');
-        handleSessionError(data.message);
       } else {
-        toast('No se pudieron cargar los registros del servidor.', 'er');
+        toast(data.message || 'No se pudieron cargar los registros del servidor.', 'er');
         setSyncState('err');
       }
     })
@@ -1132,12 +1128,7 @@ async function doLogin() {
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando…';
   try {
-    const res = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ _method: 'AUTH', username: u, password: p }),
-    });
-    const data = await res.json();
+    const data = await sbLogin(u, p);
     if (data.status === 'ok' && data.user) {
       CU = data.user;
       localStorage.setItem('v_sess', JSON.stringify(data.user));
@@ -1158,15 +1149,21 @@ async function doLogin() {
 function doLogout() {
   CU = null;
   localStorage.removeItem('v_sess');
+  sbLogout();
   document.getElementById('app').style.display='none';
   document.getElementById('login-page').style.display='flex';
 }
 
-function checkSess() {
+async function checkSess() {
   const s = localStorage.getItem('v_sess');
   if (!s) return;
-  try { CU = JSON.parse(s); bootApp(); }
-  catch(e) { localStorage.removeItem('v_sess'); }
+  try { CU = JSON.parse(s); } catch(e) { localStorage.removeItem('v_sess'); return; }
+  // La sesión mostrada (v_sess) es solo caché de UI; la que manda es la de
+  // supabase-js (persistida aparte) — si expiró, se fuerza re-login en vez
+  // de dejar que la app parezca funcionar y todo falle por RLS.
+  const alive = await sbSessionAlive();
+  if (!alive) { localStorage.removeItem('v_sess'); CU = null; return; }
+  bootApp();
 }
 
 // ═══════════════════════════════════════════════
@@ -1484,9 +1481,7 @@ function clearFilter() {
 function renderBitacora() {
   const tbody = document.getElementById('bitacora-tbody');
   tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--muted)"><i class="fas fa-spinner fa-spin"></i> Cargando...</td></tr>';
-  const url = APPS_SCRIPT_URL + '?token=' + encodeURIComponent(CU ? CU.token : '') + '&bitacora=1';
-  fetch(url)
-    .then(r => r.json())
+  sbListarBitacora()
     .then(data => {
       if (data.status !== 'ok' || !Array.isArray(data.data)) {
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--muted)">' + esc(data.message || 'No se pudo cargar la Bitácora.') + '</td></tr>';
