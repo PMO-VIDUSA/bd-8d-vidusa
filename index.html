@@ -1440,14 +1440,14 @@ function buildRow(r) {
     if (c.t) {
       const tc = val==='Satisfactorio'?'tp-sat':val==='No satisfactorio'?'tp-nosat':'tp-empty';
       const ico = val==='Satisfactorio'?'✓':val==='No satisfactorio'?'✗':'—';
-      content = `<button class="tpill ${tc}" ${canEdit?`onclick="tblToggle('${esc(r.ID_Registro)}','${c.k}')"`:' style="cursor:default"'}>${ico} ${val||'Sin def.'}</button>`;
+      content = `<button class="tpill ${tc}" ${canEdit?`onclick="event.stopPropagation();tblToggle('${esc(r.ID_Registro)}','${c.k}')"`:' style="cursor:default"'}>${ico} ${val||'Sin def.'}</button>`;
     } else if (c.k==='Estatus_Folio_D6'||c.k==='Estatus_Folio_D8') {
       const sc = val==='Cerrado'?'s-cerrado':val==='En proceso'?'s-proceso':val==='Abierto'?'s-abierto':'';
       content = val?`<span class="sbadge ${sc}">${val}</span>`:'';
     } else if (c.k==='Evidencia_Link_D6'||c.k==='Evidencia_Link_D8') {
       const su = safeUrl(val);
       content = su
-        ? `<a href="${esc(su)}" target="_blank" rel="noopener noreferrer" title="${esc(su)}"><i class="fas fa-external-link-alt"></i></a>`
+        ? `<a href="${esc(su)}" target="_blank" rel="noopener noreferrer" title="${esc(su)}" onclick="event.stopPropagation()"><i class="fas fa-external-link-alt"></i></a>`
         : (val ? esc(val) : '');
     } else {
       content = esc(val);
@@ -1462,13 +1462,18 @@ function buildRow(r) {
 
   let acts = '';
   if (canEdit) {
-    acts+=`<button class="bicon bicon-edit" onclick="openEditRec('${esc(r.ID_Registro)}')" title="Editar"><i class="fas fa-edit"></i></button>`;
+    acts+=`<button class="bicon bicon-edit" onclick="event.stopPropagation();openEditRec('${esc(r.ID_Registro)}')" title="Editar"><i class="fas fa-edit"></i></button>`;
   } else if ((isAdmin || isOwner || esFacilitadorAsignado) && pendiente) {
     acts+=`<i class="fas fa-spinner fa-spin" title="Guardando folio, espera un momento antes de editar..." style="color:var(--muted);padding:6px"></i>`;
   }
-  if ((CU.role||'').toLowerCase()==='admin' && !pendiente) acts+=`<button class="bicon bicon-del" onclick="deleteRec('${esc(r.ID_Registro)}')" title="Eliminar"><i class="fas fa-trash"></i></button>`;
+  if ((CU.role||'').toLowerCase()==='admin' && !pendiente) acts+=`<button class="bicon bicon-del" onclick="event.stopPropagation();deleteRec('${esc(r.ID_Registro)}')" title="Eliminar"><i class="fas fa-trash"></i></button>`;
 
-  return `<tr>${cells}<td><div style="display:flex;gap:5px">${acts}</div></td></tr>`;
+  // Toda la fila es clickeable para abrir el folio — evita tener que
+  // llegar hasta el ícono de lápiz al final de una fila muy larga. Solo
+  // si el usuario ya podía editarlo (mismo criterio que el ícono), para
+  // no exponer el modal de edición a quien no tiene permiso.
+  const rowClick = (canEdit && !pendiente) ? ` onclick="openEditRec('${esc(r.ID_Registro)}')" style="cursor:pointer"` : '';
+  return `<tr${rowClick}>${cells}<td><div style="display:flex;gap:5px">${acts}</div></td></tr>`;
 }
 
 function esc(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
