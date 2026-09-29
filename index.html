@@ -1440,10 +1440,10 @@ function buildRow(r) {
     if (c.t) {
       const tc = val==='Satisfactorio'?'tp-sat':val==='No satisfactorio'?'tp-nosat':'tp-empty';
       const ico = val==='Satisfactorio'?'✓':val==='No satisfactorio'?'✗':'—';
-      content = `<button class="tpill ${tc}" ${canEdit?`onclick="event.stopPropagation();tblToggle('${esc(r.ID_Registro)}','${c.k}')"`:' style="cursor:default"'}>${ico} ${val||'Sin def.'}</button>`;
+      content = `<button class="tpill ${tc}" ${canEdit?`onclick="event.stopPropagation();tblToggle('${esc(r.ID_Registro)}','${c.k}')"`:' style="cursor:default"'}>${ico} ${esc(val)||'Sin def.'}</button>`;
     } else if (c.k==='Estatus_Folio_D6'||c.k==='Estatus_Folio_D8') {
       const sc = val==='Cerrado'?'s-cerrado':val==='En proceso'?'s-proceso':val==='Abierto'?'s-abierto':'';
-      content = val?`<span class="sbadge ${sc}">${val}</span>`:'';
+      content = val?`<span class="sbadge ${sc}">${esc(val)}</span>`:'';
     } else if (c.k==='Evidencia_Link_D6'||c.k==='Evidencia_Link_D8') {
       const su = safeUrl(val);
       content = su

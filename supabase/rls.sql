@@ -18,11 +18,13 @@ create policy registros_select on registros_8d
   for select to authenticated
   using (true);
 
--- INSERT: Viewer no puede crear.
+-- INSERT: Viewer no puede crear, y el folio debe quedar adjudicado a quien
+-- lo está creando (sin esto, cualquiera con la API podía mandar
+-- creado_por='otro-usuario' y falsificar la autoría de un folio).
 drop policy if exists registros_insert on registros_8d;
 create policy registros_insert on registros_8d
   for insert to authenticated
-  with check (current_rol() <> 'Viewer');
+  with check (current_rol() <> 'Viewer' and creado_por = current_username());
 
 -- UPDATE: Admin, dueño (creado_por), o facilitador PMO asignado al folio.
 drop policy if exists registros_update on registros_8d;
