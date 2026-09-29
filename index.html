@@ -6,46 +6,47 @@
 <title>BD 8D — VIDUSA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 /* ═══════════════════════════════════════════════
-   VIDUSA PMO DESIGN SYSTEM (estilo "Lusion": lavanda + índigo eléctrico)
-   Primary:    #2B2E3A  Graphite (fills oscuros: navbar, sidebar, botones)
-   Dark/Accent:#1A2FFB  Electric Indigo (único acento de energía)
-   Accent Pale:#8891E8  Índigo pálido
-   Background: #F0F1FA  Lavender Mist
-   Cards:      #FFFFFF  Paper White
-   Text:       #000000  Ink
+   VIDUSA · BD 8D — "expediente de calidad" design system.
+   Ledger/QC-stamp aesthetic: papel de plano técnico, esquinas cuadradas,
+   datos en monoespaciada, acento tipo sello de tinta.
+   Primary:    #14261F  Tinta verde muy oscura (navbar/sidebar/botones)
+   Accent:     #C1440E  Sello de tinta (naranja-rojo quemado)
+   Background: #EDF0EA  Papel de plano (gris-verde pálido)
+   Cards:      #FBFAF6  Papel casi blanco
+   Text:       #16211B  Tinta
    Nota: verde (#01C84C / rgba(1,200,76,*)) se conserva SOLO para estados
    semánticos de "éxito" (Satisfactorio, Cerrado) — no es color de marca.
 ═══════════════════════════════════════════════ */
 :root {
-  --bg:           #F0F1FA;
-  --bg2:          #E4E6EF;
-  --card-solid:   #FFFFFF;
-  --card:         rgba(255,255,255,0.96);
-  --card2:        rgba(255,255,255,0.92);
+  --bg:           #EDF0EA;
+  --bg2:          #E2E6DD;
+  --card-solid:   #FBFAF6;
+  --card:         #FBFAF6;
+  --card2:        #FBFAF6;
 
-  --primary:      #2B2E3A;
-  --primary-dark: #1A2FFB;
-  --accent:       #1A2FFB;
-  --accent-pale:  #8891E8;
-  --accent-dim:   rgba(26,47,251,0.12);
-  --primary-dim:  rgba(43,46,58,0.08);
-  --primary-dim2: rgba(43,46,58,0.16);
-  --primary-glow: rgba(26,47,251,0.25);
+  --primary:      #14261F;
+  --primary-dark: #0B1712;
+  --accent:       #C1440E;
+  --accent-pale:  #DFA37E;
+  --accent-dim:   rgba(193,68,14,0.10);
+  --primary-dim:  rgba(20,38,31,0.06);
+  --primary-dim2: rgba(20,38,31,0.12);
+  --primary-glow: rgba(193,68,14,0.22);
 
-  --text:   #000000;
-  --text2:  #2B2E3A;
-  --muted:  #6B6D78;
+  --text:   #16211B;
+  --text2:  #3E4A43;
+  --muted:  #7C8378;
 
-  --border:  rgba(43,46,58,0.10);
-  --border2: #E4E6EF;
+  --border:  #DAD9CC;
+  --border2: #C4C3B2;
 
-  --thead-bg:  #2B2E3A;
+  --thead-bg:  #14261F;
 
   --ok-bg:   rgba(1,200,76,0.1);
   --ok-tx:   #016B2A;
@@ -54,65 +55,79 @@
   --err-bg:  rgba(185,28,28,0.09);
   --err-tx:  #991b1b;
 
-  --sidebar: 232px;
+  --sidebar: 236px;
   --nav-h:   56px;
-  --blur:    blur(20px);
-  --blur-sm: blur(12px);
-  --r:    15px;
-  --r-sm: 10px;
-  --t:      all 0.2s cubic-bezier(0.4,0,0.2,1);
-  --t-slow: all 0.35s cubic-bezier(0.4,0,0.2,1);
+  --blur:    blur(0px);
+  --blur-sm: blur(0px);
+  --r:    2px;
+  --r-sm: 2px;
+  --t:      all 0.14s ease;
+  --t-slow: all 0.2s ease;
 
-  /* sidebar text (on dark green bg) */
-  --sb-text:        rgba(255,255,255,0.72);
-  --sb-text-hover:  rgba(255,255,255,0.92);
-  --sb-hover-bg:    rgba(255,255,255,0.08);
-  --sb-active-bg:   rgba(255,255,255,0.14);
+  --mono: 'JetBrains Mono','Courier New',monospace;
+
+  /* sidebar text (on dark ink bg) */
+  --sb-text:        rgba(255,255,255,0.68);
+  --sb-text-hover:  rgba(255,255,255,0.95);
+  --sb-hover-bg:    rgba(255,255,255,0.07);
+  --sb-active-bg:   rgba(193,68,14,0.22);
 }
 
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;font-size:14px;-webkit-font-smoothing:antialiased}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 5% 0%,rgba(26,47,251,0.05) 0%,transparent 60%),radial-gradient(ellipse 50% 40% at 95% 100%,rgba(43,46,58,0.08) 0%,transparent 55%);pointer-events:none;z-index:0}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:radial-gradient(var(--border2) 1px,transparent 1px);
+  background-size:22px 22px;background-position:-4px -4px;opacity:0.5}
 a{color:var(--primary);text-decoration:none}
 a:hover{color:var(--accent)}
 
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:rgba(43,46,58,0.18);border-radius:4px}
-::-webkit-scrollbar-thumb:hover{background:rgba(43,46,58,0.32)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:0}
+::-webkit-scrollbar-thumb:hover{background:var(--muted)}
 
-/* ─── LOGIN (estilo "Lusion": superficie plana, píldoras, acento índigo) ─── */
+/* ─── LOGIN — cubierta de expediente técnico ─── */
 #login-page{
   display:flex;align-items:center;justify-content:center;height:100vh;
-  position:relative;z-index:1;overflow:hidden;background:#1c1e26;
+  position:relative;z-index:1;overflow:hidden;background:#0B1712;
   font-family:'Inter',ui-sans-serif,system-ui,sans-serif;
 }
 .login-bg-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
-.login-bg-overlay{position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(28,30,38,0.55) 0%,rgba(28,30,38,0.82) 100%)}
+.login-bg-overlay{position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(11,23,18,0.62) 0%,rgba(11,23,18,0.86) 100%)}
+#login-page::after{
+  content:'';position:absolute;inset:-2px;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,0.035) 1px,transparent 1px);
+  background-size:44px 44px;
+  -webkit-mask-image:radial-gradient(ellipse 85% 80% at 50% 45%,#000 35%,transparent 92%);
+  mask-image:radial-gradient(ellipse 85% 80% at 50% 45%,#000 35%,transparent 92%);
+}
 .login-card{
-  background:#ffffff;
-  border:1px solid #e4e6ef;border-radius:15px;
+  background:#FBFAF6;
+  border:1px solid rgba(255,255,255,0.1);border-radius:2px;
   padding:52px 44px;width:420px;
-  box-shadow:rgba(0,0,0,0.10) 0px 12px 32px 0px,rgba(0,0,0,0.08) 0px 2px 6px 0px;
+  box-shadow:0 24px 64px rgba(0,0,0,0.45),0 2px 8px rgba(0,0,0,0.25);
   animation:loginIn 0.55s cubic-bezier(0.34,1.4,0.64,1) both;
   position:relative;z-index:1;overflow:hidden
 }
+.login-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent)}
 @keyframes loginIn{from{opacity:0;transform:translateY(32px) scale(0.95)}to{opacity:1;transform:translateY(0) scale(1)}}
 
 .login-brand{text-align:center;margin-bottom:42px}
 .login-logo-img{height:64px;width:auto;object-fit:contain;margin-bottom:18px;display:block;margin-left:auto;margin-right:auto}
-.login-brand .name{font-size:28px;font-weight:500;color:#000000;letter-spacing:-0.02em}
-.login-brand .sub{font-size:13px;color:#000000;margin-top:6px;letter-spacing:-0.02em;font-weight:400}
+.login-brand .name{font-family:var(--mono);font-size:20px;font-weight:600;color:#16211B;letter-spacing:3px}
+.login-brand .sub{font-family:var(--mono);font-size:10.5px;color:var(--accent);margin-top:8px;letter-spacing:1.2px;text-transform:uppercase;font-weight:600}
 
-#login-page .fgroup label{display:block;font-size:12px;color:#000000;margin-bottom:8px;font-weight:500;text-transform:uppercase;letter-spacing:-0.02em}
+#login-page .fgroup label{display:block;font-family:var(--mono);font-size:10.5px;color:#5c6459;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:1px}
 #login-page .fgroup input{
-  width:100%;background:#ffffff;border:1px solid #e4e6ef;
-  border-radius:18px;padding:14px 18px;color:#000000;
-  font-size:16px;font-family:inherit;letter-spacing:-0.02em;
-  transition:border-color 0.2s ease;outline:none
+  width:100%;background:#ffffff;border:1px solid #DAD9CC;border-radius:0;
+  padding:12px 14px;color:#16211B;
+  font-size:14px;font-family:var(--mono);letter-spacing:0.2px;
+  transition:border-color 0.14s ease;outline:none
 }
-#login-page .fgroup input:focus{border-color:#1a2ffb;box-shadow:none;background:#ffffff}
-#login-page .fgroup input::placeholder{color:#8a8d99}
+#login-page .fgroup input:focus{border-color:var(--accent);box-shadow:none;background:#ffffff}
+#login-page .fgroup input::placeholder{color:#a6ab9d}
 
 .fgroup{margin-bottom:20px}
 .fgroup label{display:block;font-size:11px;color:var(--text2);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px}
@@ -130,21 +145,21 @@ a:hover{color:var(--accent)}
 .ms-item input{width:auto;flex:none}
 
 .err-msg{color:var(--err-tx);font-size:12px;margin-top:10px;display:none;padding:10px 13px;background:var(--err-bg);border-radius:var(--r-sm);border:1px solid rgba(185,28,28,0.2);animation:shake 0.4s cubic-bezier(0.36,0.07,0.19,0.97)}
-#login-page .err-msg{border-radius:12px;font-size:13px;letter-spacing:-0.02em}
+#login-page .err-msg{border-radius:0;font-size:13px;letter-spacing:-0.02em}
 @keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(3px)}30%,70%{transform:translateX(-3px)}40%,60%{transform:translateX(3px)}50%{transform:translateX(-3px)}}
 
 /* ─── BUTTONS ─── */
 .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--r-sm);border:none;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;transition:var(--t);white-space:nowrap;position:relative;overflow:hidden}
-.btn-primary{background:var(--primary);color:#fff;border-radius:87.5px;box-shadow:0 4px 14px rgba(43,46,58,0.28)}
-.btn-primary:hover{background:var(--primary-dark);box-shadow:0 6px 22px rgba(26,47,251,0.35);transform:translateY(-1px)}
-.btn-primary:active{transform:translateY(0)}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:none}
+.btn-primary:hover{background:var(--accent);box-shadow:none}
+.btn-primary:active{transform:translateY(1px)}
 #login-page .btn-primary{
-  background:#2b2e3a;color:#ffffff;border-radius:87.5px;
-  padding:14px 24px;font-size:14px;font-weight:500;
-  text-transform:uppercase;letter-spacing:-0.02em;
-  box-shadow:rgba(0,0,0,0.04) 0px 6px 10px 0px,rgba(0,0,0,0.04) 0px 2px 4px 0px;
+  background:#14261F;color:#ffffff;border-radius:0;
+  padding:13px 24px;font-family:var(--mono);font-size:12.5px;font-weight:600;
+  text-transform:uppercase;letter-spacing:1.5px;
+  border:1px solid transparent;
 }
-#login-page .btn-primary:hover{background:#1a2ffb;box-shadow:rgba(0,0,0,0.04) 0px 6px 10px 0px,rgba(0,0,0,0.04) 0px 2px 4px 0px;transform:none}
+#login-page .btn-primary:hover{background:var(--accent)}
 .btn-sec{background:rgba(43,46,58,0.08);color:var(--primary);border:1px solid var(--border2)}
 .btn-sec:hover{background:rgba(43,46,58,0.14);color:var(--primary-dark)}
 .btn-ok{background:var(--ok-bg);color:var(--ok-tx);border:1px solid rgba(1,200,76,0.25)}
@@ -152,7 +167,7 @@ a:hover{color:var(--accent)}
 .btn-danger:hover{background:rgba(185,28,28,0.16);transform:translateY(-1px)}
 .btn-full{width:100%;justify-content:center}
 
-.bicon{width:32px;height:32px;border-radius:7px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:var(--t);flex-shrink:0}
+.bicon{width:32px;height:32px;border-radius:0;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:var(--t);flex-shrink:0}
 .bicon-edit{background:rgba(43,46,58,0.1);color:var(--primary);border:1px solid var(--border2)}
 .bicon-edit:hover{background:rgba(43,46,58,0.2);transform:scale(1.08)}
 .bicon-del{background:var(--err-bg);color:var(--err-tx);border:1px solid rgba(185,28,28,0.18)}
@@ -172,10 +187,10 @@ a:hover{color:var(--accent)}
 .nb-logo-wrap{display:flex;align-items:center;justify-content:center;background:#fff;border-radius:4px;padding:2px 6px;flex-shrink:0;height:40px}
 .nb-logo{height:36px;width:auto;object-fit:contain;display:block}
 .nb-logo-fallback{font-size:15px;font-weight:900;color:#fff;letter-spacing:2px;display:none}
-.nb-logo-fallback .dot{color:#1A2FFB;margin-right:3px}
+.nb-logo-fallback .dot{color:var(--accent);margin-right:3px}
 .nb-sep{width:1px;height:24px;background:rgba(255,255,255,0.2);flex-shrink:0}
-.nb-title{font-size:15px;font-weight:700;color:rgba(255,255,255,0.92);letter-spacing:1.5px}
-.nb-title span{color:rgba(255,255,255,0.55);font-weight:400;font-size:12px;margin-left:7px;letter-spacing:0.3px}
+.nb-title{font-family:var(--mono);font-size:14px;font-weight:600;color:rgba(255,255,255,0.94);letter-spacing:2px}
+.nb-title span{font-family:var(--mono);color:rgba(255,255,255,0.5);font-weight:400;font-size:11px;margin-left:7px;letter-spacing:0.3px;text-transform:uppercase}
 .nb-spacer{flex:1}
 .nb-ham{display:none;width:36px;height:36px;align-items:center;justify-content:center;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.18);border-radius:var(--r-sm);cursor:pointer;color:rgba(255,255,255,0.88);font-size:16px;transition:var(--t);flex-shrink:0}
 .nb-ham:hover{background:rgba(255,255,255,0.2)}
@@ -183,19 +198,19 @@ a:hover{color:var(--accent)}
 #sync-badge{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:var(--r-sm);background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);font-size:11px;color:rgba(255,255,255,0.8);transition:var(--t)}
 .sdot{display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0;transition:background 0.3s}
 .sdot-idle{background:rgba(255,255,255,0.3)}
-.sdot-syncing{background:#8891E8;animation:sdpulse 0.9s ease infinite}
-.sdot-ok{background:var(--accent);box-shadow:0 0 6px rgba(26,47,251,0.5)}
+.sdot-syncing{background:var(--accent-pale);animation:sdpulse 0.9s ease infinite}
+.sdot-ok{background:#01C84C;box-shadow:0 0 6px rgba(1,200,76,0.5)}
 @keyframes sdpulse{0%,100%{opacity:1}50%{opacity:0.3}}
 
 .ubadge{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);border-radius:var(--r-sm);padding:6px 13px;transition:var(--t)}
 .ubadge:hover{background:rgba(255,255,255,0.18)}
-.ubadge .uname{font-size:13px;font-weight:600;color:rgba(255,255,255,0.92)}
+.ubadge .uname{font-family:var(--mono);font-size:12.5px;font-weight:500;color:rgba(255,255,255,0.92)}
 .ubadge i{color:rgba(255,255,255,0.6)}
 
-.rbadge{font-size:10px;padding:2px 8px;border-radius:4px;font-weight:700;text-transform:uppercase;letter-spacing:0.3px}
-.r-admin{background:rgba(26,47,251,0.18);color:#1A2FFB;border:1px solid rgba(26,47,251,0.3)}
-.r-editor{background:rgba(136,145,232,0.2);color:#4c53c9;border:1px solid rgba(136,145,232,0.35)}
-.r-viewer{background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.18)}
+.rbadge{font-family:var(--mono);font-size:9.5px;padding:2px 8px;border-radius:0;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;background:transparent}
+.r-admin{color:var(--accent);border:1px solid var(--accent)}
+.r-editor{color:#8a7a3e;border:1px solid #8a7a3e}
+.r-viewer{color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.3)}
 
 .btn-logout{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.88);border:1px solid rgba(255,255,255,0.18);padding:6px 13px;font-size:12px}
 .btn-logout:hover{background:rgba(255,255,255,0.2)}
@@ -206,26 +221,30 @@ a:hover{color:var(--accent)}
 /* ─── SIDEBAR ─── */
 .sidebar{
   width:var(--sidebar);
-  background:#34393F;
-  border-right:1px solid rgba(0,0,0,0.1);
+  background:var(--primary-dark);
+  border-right:1px solid rgba(0,0,0,0.2);
   display:flex;flex-direction:column;
   padding:14px 0;flex-shrink:0;
   transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
   overflow:hidden;position:relative;z-index:50;
-  box-shadow:2px 0 8px rgba(0,0,0,0.1)
+  box-shadow:2px 0 8px rgba(0,0,0,0.2);
+  counter-reset:navidx;
 }
-.sidebar-divider{height:1px;background:rgba(255,255,255,0.1);margin:8px 16px}
+.sidebar-divider{height:1px;background:rgba(255,255,255,0.08);margin:8px 16px}
 .sitem{
-  display:flex;align-items:center;gap:12px;
+  display:flex;align-items:center;gap:10px;
   padding:11px 18px 11px 20px;cursor:pointer;
-  color:var(--sb-text);font-size:13px;font-weight:500;
+  color:var(--sb-text);font-family:var(--mono);font-size:12px;font-weight:500;
   transition:var(--t);border-left:3px solid transparent;
-  margin:1px 8px 1px 0;border-radius:0 var(--r-sm) var(--r-sm) 0;
-  white-space:nowrap
+  margin:0;border-radius:0;
+  white-space:nowrap;text-transform:uppercase;letter-spacing:0.4px;
+  counter-increment:navidx;
 }
+.sitem::before{content:counter(navidx,decimal-leading-zero);font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.28);width:16px;flex-shrink:0}
 .sitem:hover{background:var(--sb-hover-bg);color:var(--sb-text-hover)}
 .sitem.active{background:var(--sb-active-bg);color:#fff;border-left-color:var(--accent)}
 .sitem.active i{color:var(--accent)}
+.sitem.active::before{color:var(--accent)}
 .sitem i{width:16px;text-align:center;flex-shrink:0;transition:var(--t);color:var(--sb-text)}
 .admin-only{display:none !important}
 .sitem:hover i{color:var(--sb-text-hover)}
@@ -239,23 +258,22 @@ a:hover{color:var(--accent)}
 /* ─── KPI CARDS ─── */
 .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
 .kpi{
-  background:rgba(255,255,255,0.85);
-  backdrop-filter:var(--blur-sm);-webkit-backdrop-filter:var(--blur-sm);
+  background:var(--card-solid);
   border:1px solid var(--border);
-  border-radius:var(--r);padding:22px 24px;
+  border-radius:0;padding:22px 24px;
   position:relative;overflow:hidden;
   transition:var(--t-slow);cursor:default;
-  box-shadow:0 2px 10px rgba(43,46,58,0.08)
+  box-shadow:none
 }
-.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r) var(--r) 0 0}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
 .kpi-total::before{background:linear-gradient(90deg,var(--primary),#4a4d5c)}
 .kpi-open::before{background:linear-gradient(90deg,#b46e00,#e0a030)}
 .kpi-closed::before{background:linear-gradient(90deg,#01C84C,#05e55a)}
-.kpi-sat::before{background:linear-gradient(90deg,var(--primary-dark),var(--primary))}
-.kpi::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.4) 0%,transparent 60%);pointer-events:none}
-.kpi:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(43,46,58,0.14);border-color:var(--border2)}
-.kpi .klabel{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:700}
-.kpi .kval{font-size:38px;font-weight:900;line-height:1;letter-spacing:-1px;font-variant-numeric:tabular-nums}
+.kpi-sat::before{background:var(--accent)}
+.kpi::after{content:none}
+.kpi:hover{transform:none;box-shadow:none;border-color:var(--accent)}
+.kpi .klabel{font-family:var(--mono);font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;font-weight:600}
+.kpi .kval{font-family:var(--mono);font-size:36px;font-weight:500;line-height:1;letter-spacing:-1px;font-variant-numeric:tabular-nums}
 .kpi .kico{font-size:16px;margin-bottom:6px}
 .kpi-total .kval{color:var(--primary)}
 .kpi-open .kval{color:var(--warn-tx)}
@@ -266,20 +284,20 @@ a:hover{color:var(--accent)}
 .sec-hdr{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
 .sec-title{font-size:18px;font-weight:700;color:var(--text);letter-spacing:-0.3px}
 
-.search-wrap{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.8);border:1px solid var(--border2);border-radius:var(--r-sm);padding:8px 14px;flex:1;max-width:380px;transition:var(--t);box-shadow:0 1px 4px rgba(43,46,58,0.06)}
-.search-wrap:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-dim);background:#fff}
-.search-wrap input{background:none;border:none;outline:none;color:var(--text);font-size:13px;width:100%;font-family:inherit}
+.search-wrap{display:flex;align-items:center;gap:8px;background:var(--card-solid);border:1px solid var(--border2);border-radius:0;padding:8px 14px;flex:1;max-width:380px;transition:var(--t);box-shadow:none}
+.search-wrap:focus-within{border-color:var(--accent);box-shadow:none;background:#fff}
+.search-wrap input{background:none;border:none;outline:none;color:var(--text);font-size:13px;width:100%;font-family:var(--mono)}
 .search-wrap input::placeholder{color:var(--muted)}
 .search-wrap i{color:var(--muted);font-size:13px}
 
-/* ─── TABLE ─── */
-.table-wrap{background:#fff;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:0 2px 12px rgba(43,46,58,0.08)}
+/* ─── TABLE — "hoja de datos" tipo bitácora, cifras en monoespaciada ─── */
+.table-wrap{background:#fff;border:1px solid var(--border);border-radius:0;overflow:hidden;box-shadow:none}
 .table-scroll{overflow:auto;max-height:calc(100vh - 360px)}
-table{border-collapse:collapse;width:max-content;min-width:100%}
-thead th{background:var(--thead-bg);color:rgba(255,255,255,0.92);padding:11px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;position:sticky;top:0;z-index:10}
-tbody td{padding:10px 14px;font-size:12px;border-bottom:1px solid rgba(43,46,58,0.06);white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis;transition:background 0.12s;color:var(--text)}
-tbody tr:hover td{background:rgba(43,46,58,0.04)}
-tbody tr:hover td.f1,tbody tr:hover td.f2,tbody tr:hover td.f3{background:#f2f7f1}
+table{border-collapse:collapse;width:max-content;min-width:100%;font-family:var(--mono)}
+thead th{background:var(--thead-bg);color:rgba(255,255,255,0.92);padding:11px 14px;text-align:left;font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;position:sticky;top:0;z-index:10}
+tbody td{padding:10px 14px;font-size:12px;border-bottom:1px solid var(--border);white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis;transition:background 0.12s;color:var(--text)}
+tbody tr:hover td{background:var(--accent-dim)}
+tbody tr:hover td.f1,tbody tr:hover td.f2,tbody tr:hover td.f3{background:#F0F3EC}
 
 /* ─── FROZEN COLS ─── */
 .f1{position:sticky;left:0;z-index:5;background:#fff}
@@ -291,7 +309,7 @@ th.f2{min-width:80px;width:80px}
 th.f3{min-width:160px;width:160px}
 
 /* ─── TOGGLE PILL ─── */
-.tpill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;border:1px solid transparent;cursor:pointer;font-size:11px;font-weight:700;transition:var(--t);white-space:nowrap}
+.tpill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:0;border:1px solid transparent;cursor:pointer;font-size:11px;font-weight:700;transition:var(--t);white-space:nowrap}
 .tp-empty{background:transparent;border-color:var(--border2);color:var(--muted)}
 .tp-empty:hover{border-color:var(--primary);color:var(--primary)}
 .tp-sat{background:var(--ok-bg);border-color:rgba(1,200,76,0.3);color:var(--ok-tx)}
@@ -316,25 +334,25 @@ th.f3{min-width:160px;width:160px}
 .pbtn:disabled:hover{border-color:var(--border);color:var(--text2);background:rgba(255,255,255,0.8)}
 
 /* ─── MODAL ─── */
-.overlay{display:none;position:fixed;inset:0;background:rgba(15,36,52,0.55);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);z-index:1000;align-items:center;justify-content:center}
+.overlay{display:none;position:fixed;inset:0;background:rgba(11,23,18,0.6);backdrop-filter:none;-webkit-backdrop-filter:none;z-index:1000;align-items:center;justify-content:center}
 .overlay.open{display:flex;animation:overlayIn 0.18s ease}
 @keyframes overlayIn{from{opacity:0}to{opacity:1}}
 .modal{
   background:#fff;
-  border:1px solid var(--border2);border-radius:16px;
+  border:1px solid var(--border2);border-radius:0;
   width:900px;max-width:95vw;max-height:92vh;
   display:flex;flex-direction:column;
-  box-shadow:0 32px 80px rgba(43,46,58,0.2),0 4px 16px rgba(43,46,58,0.1);
+  box-shadow:0 32px 80px rgba(0,0,0,0.35),0 4px 16px rgba(0,0,0,0.15);
   animation:modalIn 0.28s cubic-bezier(0.34,1.15,0.64,1);
   position:relative;overflow:hidden
 }
-.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--primary-dark),var(--primary),var(--accent),var(--primary))}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent)}
 @keyframes modalIn{from{opacity:0;transform:translateY(18px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}}
 .modal-sm{width:540px}
 
-.modal-hdr{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:rgba(233,242,231,0.35)}
-.modal-title{font-size:17px;font-weight:700;color:var(--text)}
-.mclose{width:32px;height:32px;border-radius:7px;border:1px solid var(--border2);background:rgba(43,46,58,0.06);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:var(--t)}
+.modal-hdr{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--bg2)}
+.modal-title{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--text);letter-spacing:0.3px}
+.mclose{width:32px;height:32px;border-radius:0;border:1px solid var(--border2);background:rgba(43,46,58,0.06);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:var(--t)}
 .mclose:hover{background:var(--err-bg);color:var(--err-tx);border-color:rgba(185,28,28,0.25);transform:scale(1.05)}
 
 .modal-tabs{display:flex;border-bottom:1px solid var(--border);padding:0 24px;gap:0;flex-shrink:0;overflow-x:auto;background:rgba(233,242,231,0.2)}
@@ -367,7 +385,7 @@ th.f3{min-width:160px;width:160px}
 .uavatar{width:44px;height:44px;border-radius:50%;background:var(--primary-dim);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--primary);flex-shrink:0}
 
 /* ─── CONFIRM ─── */
-.confirm-box{background:#fff;border:1px solid var(--border2);border-radius:16px;padding:32px;width:400px;text-align:center;box-shadow:0 20px 60px rgba(43,46,58,0.2);animation:modalIn 0.28s cubic-bezier(0.34,1.15,0.64,1)}
+.confirm-box{background:#fff;border:1px solid var(--border2);border-radius:0;padding:32px;width:400px;text-align:center;box-shadow:0 20px 60px rgba(43,46,58,0.2);animation:modalIn 0.28s cubic-bezier(0.34,1.15,0.64,1)}
 .confirm-box h3{margin-bottom:12px;font-size:18px;color:var(--text)}
 .confirm-box p{color:var(--muted);font-size:13px;margin-bottom:24px;line-height:1.6}
 .confirm-btns{display:flex;gap:10px;justify-content:center}
@@ -400,7 +418,7 @@ th.f3{min-width:160px;width:160px}
 #page-resumen tbody td.rc-fracc{width:150px;font-weight:600;background:#fff}
 #page-resumen tbody td.rc-short{width:160px}
 #page-resumen tbody td.rc-long{width:260px;color:var(--text2)}
-#page-resumen tbody tr:hover td.rc-fracc{background:#f2f7f1}
+#page-resumen tbody tr:hover td.rc-fracc{background:#F0F3EC}
 
 /* ─── URL BANNER ─── */
 #url-banner{display:none;background:rgba(180,110,0,0.1);border-bottom:1px solid rgba(180,110,0,0.25);color:var(--warn-tx);padding:10px 20px;font-size:13px;font-weight:600;text-align:center;letter-spacing:0.2px;flex-shrink:0;z-index:99}
@@ -664,7 +682,7 @@ th.f3{min-width:160px;width:160px}
       <!-- TAB 0 -->
       <div class="tabcnt active" id="tab-0">
         <div class="fgrid">
-          <div class="fw" style="font-size:11px;font-weight:700;text-transform:uppercase;color:#000000;border-bottom:1px solid #E4E6EF;padding-bottom:4px;margin:16px 0 8px 0;letter-spacing:.6px">D1 — Formar Equipo</div>
+          <div class="fw" style="font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;color:var(--primary);border-bottom:1px solid var(--border2);padding-bottom:4px;margin:16px 0 8px 0;letter-spacing:.6px">D1 — Formar Equipo</div>
           <div class="fgroup"><label>ID Registro (auto)</label><input id="f-ID_Registro" readonly style="opacity:.45;background:var(--card-solid)" /></div>
           <div class="fgroup"><label>Folio (auto)</label><input id="f-Folio" readonly style="opacity:.45;background:var(--card-solid)" /></div>
           <div class="fgroup"><label>Fraccionamiento</label>
@@ -706,7 +724,7 @@ th.f3{min-width:160px;width:160px}
             </div>
             <input type="hidden" id="f-Facilitador_BPO" />
           </div>
-          <div class="fw" style="font-size:11px;font-weight:700;text-transform:uppercase;color:#000000;border-bottom:1px solid #E4E6EF;padding-bottom:4px;margin:8px 0;letter-spacing:.6px">Equipo de Trabajo — Miembros</div>
+          <div class="fw" style="font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;color:var(--primary);border-bottom:1px solid var(--border2);padding-bottom:4px;margin:8px 0;letter-spacing:.6px">Equipo de Trabajo — Miembros</div>
           <div class="fgroup"><label>Miembro 1</label><input id="et-m1" placeholder="Nombre completo" oninput="updateEquipo()" /></div>
           <div class="fgroup"><label>Miembro 2</label><input id="et-m2" placeholder="Nombre completo" oninput="updateEquipo()" /></div>
           <div class="fgroup"><label>Miembro 3</label><input id="et-m3" placeholder="Nombre completo" oninput="updateEquipo()" /></div>
@@ -723,7 +741,7 @@ th.f3{min-width:160px;width:160px}
             <input id="f-Creado_Por" placeholder="username del dueño" />
           </div>
           <input type="hidden" id="f-Votacion_D4_JSON" />
-          <div class="fw" style="font-size:11px;font-weight:700;text-transform:uppercase;color:#000000;border-bottom:1px solid #E4E6EF;padding-bottom:4px;margin:16px 0 4px 0;letter-spacing:.6px">Tabla de Votación — D4 Causas Raíz</div>
+          <div class="fw" style="font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;color:var(--primary);border-bottom:1px solid var(--border2);padding-bottom:4px;margin:16px 0 4px 0;letter-spacing:.6px">Tabla de Votación — D4 Causas Raíz</div>
           <p class="fw" style="font-size:11px;color:var(--muted);margin:0 0 8px 0">Cada miembro puntúa cada idea. La de mayor puntaje se copia automáticamente a Causa Raíz.</p>
           <div class="fw" style="overflow-x:auto;margin-bottom:8px">
             <table style="width:100%;border-collapse:collapse;font-size:11px;min-width:620px">
@@ -747,11 +765,11 @@ th.f3{min-width:160px;width:160px}
               <tbody id="voto-tbody"></tbody>
             </table>
           </div>
-          <div class="fw" style="font-size:11px;font-weight:700;text-transform:uppercase;color:#000000;border-bottom:1px solid #E4E6EF;padding-bottom:4px;margin:16px 0 8px 0;letter-spacing:.6px">D2 — Descripción del Problema</div>
+          <div class="fw" style="font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;color:var(--primary);border-bottom:1px solid var(--border2);padding-bottom:4px;margin:16px 0 8px 0;letter-spacing:.6px">D2 — Descripción del Problema</div>
           <div class="fgroup fw"><label>Descripción del Problema</label><textarea id="f-Descripcion_Problema"></textarea></div>
-          <div class="fw" style="font-size:11px;font-weight:700;text-transform:uppercase;color:#000000;border-bottom:1px solid #E4E6EF;padding-bottom:4px;margin:16px 0 8px 0;letter-spacing:.6px">D3 — Acción para Contener la No Conformidad</div>
+          <div class="fw" style="font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;color:var(--primary);border-bottom:1px solid var(--border2);padding-bottom:4px;margin:16px 0 8px 0;letter-spacing:.6px">D3 — Acción para Contener la No Conformidad</div>
           <div class="fgroup fw"><label>Acción de Contención</label><textarea id="f-Accion_Contencion"></textarea></div>
-          <div class="fw" style="font-size:11px;font-weight:700;text-transform:uppercase;color:#000000;border-bottom:1px solid #E4E6EF;padding-bottom:4px;margin:16px 0 8px 0;letter-spacing:.6px">D4 — Identificación de la Causa Raíz del Problema</div>
+          <div class="fw" style="font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;color:var(--primary);border-bottom:1px solid var(--border2);padding-bottom:4px;margin:16px 0 8px 0;letter-spacing:.6px">D4 — Identificación de la Causa Raíz del Problema</div>
           <div class="fgroup fw"><label>Causa Raíz</label><textarea id="f-Causa_Raiz"></textarea></div>
           <div class="fgroup"><label>Ponderación Causa</label><input id="f-Ponderacion_Causa" /></div>
         </div>
@@ -760,56 +778,56 @@ th.f3{min-width:160px;width:160px}
       <!-- TAB 1 -->
       <div class="tabcnt" id="tab-1">
         <div class="fgrid">
-          <div class="fw" style="font-size:11px;font-weight:700;text-transform:uppercase;color:#000000;border-bottom:1px solid #E4E6EF;padding-bottom:4px;margin:4px 0 8px 0;letter-spacing:.6px">Acción Correctiva 1</div>
+          <div class="fw" style="font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;color:var(--primary);border-bottom:1px solid var(--border2);padding-bottom:4px;margin:4px 0 8px 0;letter-spacing:.6px">Acción Correctiva 1</div>
           <div class="fgroup fw"><label>Acción Correctiva 1</label><textarea id="f-Accion_Correctiva_1"></textarea></div>
           <div class="fgroup"><label>Responsable Acción 1</label><input id="f-Responsable_Accion_1" /></div>
           <div class="fgroup"><label>Fecha Programada 1</label><input id="f-Fecha_Programada_1" type="date" /></div>
           <div class="fgroup"><label>Fecha Realización 1</label><input id="f-Fecha_Realizacion_1" type="date" /></div>
           <div class="fgroup fw"><label>Bitácora Acción 1</label><textarea id="f-Bitacora_Accion_1"></textarea></div>
           <div class="fgroup"><label>Fecha Bitácora 1</label><input id="f-Fecha_Bitacora_1" type="date" /></div>
-          <div class="fw" style="font-size:11px;font-weight:700;text-transform:uppercase;color:#000000;border-bottom:1px solid #E4E6EF;padding-bottom:4px;margin:12px 0 8px 0;letter-spacing:.6px">Acción Correctiva 2</div>
+          <div class="fw" style="font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;color:var(--primary);border-bottom:1px solid var(--border2);padding-bottom:4px;margin:12px 0 8px 0;letter-spacing:.6px">Acción Correctiva 2</div>
           <div class="fgroup fw"><label>Acción Correctiva 2</label><textarea id="f-Accion_Correctiva_2"></textarea></div>
           <div class="fgroup"><label>Responsable Acción 2</label><input id="f-Responsable_Accion_2" /></div>
           <div class="fgroup"><label>Fecha Programada 2</label><input id="f-Fecha_Programada_2" type="date" /></div>
           <div class="fgroup"><label>Fecha Realización 2</label><input id="f-Fecha_Realizacion_2" type="date" /></div>
           <div class="fgroup fw"><label>Bitácora Acción 2</label><textarea id="f-Bitacora_Accion_2"></textarea></div>
           <div class="fgroup"><label>Fecha Bitácora 2</label><input id="f-Fecha_Bitacora_2" type="date" /></div>
-          <div class="fw" style="font-size:11px;font-weight:700;text-transform:uppercase;color:#000000;border-bottom:1px solid #E4E6EF;padding-bottom:4px;margin:12px 0 8px 0;letter-spacing:.6px">Acción Correctiva 3</div>
+          <div class="fw" style="font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;color:var(--primary);border-bottom:1px solid var(--border2);padding-bottom:4px;margin:12px 0 8px 0;letter-spacing:.6px">Acción Correctiva 3</div>
           <div class="fgroup fw"><label>Acción Correctiva 3</label><textarea id="f-Accion_Correctiva_3"></textarea></div>
           <div class="fgroup"><label>Responsable Acción 3</label><input id="f-Responsable_Accion_3" /></div>
           <div class="fgroup"><label>Fecha Programada 3</label><input id="f-Fecha_Programada_3" type="date" /></div>
           <div class="fgroup"><label>Fecha Realización 3</label><input id="f-Fecha_Realizacion_3" type="date" /></div>
           <div class="fgroup fw"><label>Bitácora Acción 3</label><textarea id="f-Bitacora_Accion_3"></textarea></div>
           <div class="fgroup"><label>Fecha Bitácora 3</label><input id="f-Fecha_Bitacora_3" type="date" /></div>
-          <div class="fw" style="font-size:11px;font-weight:700;text-transform:uppercase;color:#000000;border-bottom:1px solid #E4E6EF;padding-bottom:4px;margin:12px 0 8px 0;letter-spacing:.6px">Acción Correctiva 4</div>
+          <div class="fw" style="font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;color:var(--primary);border-bottom:1px solid var(--border2);padding-bottom:4px;margin:12px 0 8px 0;letter-spacing:.6px">Acción Correctiva 4</div>
           <div class="fgroup fw"><label>Acción Correctiva 4</label><textarea id="f-Accion_Correctiva_4"></textarea></div>
           <div class="fgroup"><label>Responsable Acción 4</label><input id="f-Responsable_Accion_4" /></div>
           <div class="fgroup"><label>Fecha Programada 4</label><input id="f-Fecha_Programada_4" type="date" /></div>
           <div class="fgroup"><label>Fecha Realización 4</label><input id="f-Fecha_Realizacion_4" type="date" /></div>
           <div class="fgroup fw"><label>Bitácora Acción 4</label><textarea id="f-Bitacora_Accion_4"></textarea></div>
           <div class="fgroup"><label>Fecha Bitácora 4</label><input id="f-Fecha_Bitacora_4" type="date" /></div>
-          <div class="fw" style="font-size:11px;font-weight:700;text-transform:uppercase;color:#000000;border-bottom:1px solid #E4E6EF;padding-bottom:4px;margin:12px 0 8px 0;letter-spacing:.6px">Acción Correctiva 5</div>
+          <div class="fw" style="font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;color:var(--primary);border-bottom:1px solid var(--border2);padding-bottom:4px;margin:12px 0 8px 0;letter-spacing:.6px">Acción Correctiva 5</div>
           <div class="fgroup fw"><label>Acción Correctiva 5</label><textarea id="f-Accion_Correctiva_5"></textarea></div>
           <div class="fgroup"><label>Responsable Acción 5</label><input id="f-Responsable_Accion_5" /></div>
           <div class="fgroup"><label>Fecha Programada 5</label><input id="f-Fecha_Programada_5" type="date" /></div>
           <div class="fgroup"><label>Fecha Realización 5</label><input id="f-Fecha_Realizacion_5" type="date" /></div>
           <div class="fgroup fw"><label>Bitácora Acción 5</label><textarea id="f-Bitacora_Accion_5"></textarea></div>
           <div class="fgroup"><label>Fecha Bitácora 5</label><input id="f-Fecha_Bitacora_5" type="date" /></div>
-          <div class="fw" style="font-size:11px;font-weight:700;text-transform:uppercase;color:#000000;border-bottom:1px solid #E4E6EF;padding-bottom:4px;margin:12px 0 8px 0;letter-spacing:.6px">Acción Correctiva 6</div>
+          <div class="fw" style="font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;color:var(--primary);border-bottom:1px solid var(--border2);padding-bottom:4px;margin:12px 0 8px 0;letter-spacing:.6px">Acción Correctiva 6</div>
           <div class="fgroup fw"><label>Acción Correctiva 6</label><textarea id="f-Accion_Correctiva_6"></textarea></div>
           <div class="fgroup"><label>Responsable Acción 6</label><input id="f-Responsable_Accion_6" /></div>
           <div class="fgroup"><label>Fecha Programada 6</label><input id="f-Fecha_Programada_6" type="date" /></div>
           <div class="fgroup"><label>Fecha Realización 6</label><input id="f-Fecha_Realizacion_6" type="date" /></div>
           <div class="fgroup fw"><label>Bitácora Acción 6</label><textarea id="f-Bitacora_Accion_6"></textarea></div>
           <div class="fgroup"><label>Fecha Bitácora 6</label><input id="f-Fecha_Bitacora_6" type="date" /></div>
-          <div class="fw" style="font-size:11px;font-weight:700;text-transform:uppercase;color:#000000;border-bottom:1px solid #E4E6EF;padding-bottom:4px;margin:12px 0 8px 0;letter-spacing:.6px">Acción Correctiva 7</div>
+          <div class="fw" style="font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;color:var(--primary);border-bottom:1px solid var(--border2);padding-bottom:4px;margin:12px 0 8px 0;letter-spacing:.6px">Acción Correctiva 7</div>
           <div class="fgroup fw"><label>Acción Correctiva 7</label><textarea id="f-Accion_Correctiva_7"></textarea></div>
           <div class="fgroup"><label>Responsable Acción 7</label><input id="f-Responsable_Accion_7" /></div>
           <div class="fgroup"><label>Fecha Programada 7</label><input id="f-Fecha_Programada_7" type="date" /></div>
           <div class="fgroup"><label>Fecha Realización 7</label><input id="f-Fecha_Realizacion_7" type="date" /></div>
           <div class="fgroup fw"><label>Bitácora Acción 7</label><textarea id="f-Bitacora_Accion_7"></textarea></div>
           <div class="fgroup"><label>Fecha Bitácora 7</label><input id="f-Fecha_Bitacora_7" type="date" /></div>
-          <div class="fw" style="font-size:11px;font-weight:700;text-transform:uppercase;color:#000000;border-bottom:1px solid #E4E6EF;padding-bottom:4px;margin:12px 0 8px 0;letter-spacing:.6px">Acción Correctiva 8</div>
+          <div class="fw" style="font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;color:var(--primary);border-bottom:1px solid var(--border2);padding-bottom:4px;margin:12px 0 8px 0;letter-spacing:.6px">Acción Correctiva 8</div>
           <div class="fgroup fw"><label>Acción Correctiva 8</label><textarea id="f-Accion_Correctiva_8"></textarea></div>
           <div class="fgroup"><label>Responsable Acción 8</label><input id="f-Responsable_Accion_8" /></div>
           <div class="fgroup"><label>Fecha Programada 8</label><input id="f-Fecha_Programada_8" type="date" /></div>
@@ -1899,7 +1917,7 @@ function renderUsers() {
         <i class="fas fa-users" style="color:var(--primary);margin-right:8px"></i>Usuarios gestionados en Google Sheets
       </div>
       <p>Para modificar o eliminar usuarios, edita la tabla <strong style="color:var(--text)">profiles</strong> directamente en el proyecto de Supabase vinculado.</p>
-      <p style="margin-top:14px">Roles válidos: <span class="rbadge" style="background:rgba(26,47,251,0.18);color:#1A2FFB;border:1px solid rgba(26,47,251,0.3);font-size:11px">Admin</span> &nbsp;<span class="rbadge" style="background:rgba(136,145,232,0.2);color:#4c53c9;border:1px solid rgba(136,145,232,0.35);font-size:11px">Editor</span> &nbsp;<span class="rbadge" style="background:rgba(107,109,120,0.12);color:var(--muted);border:1px solid var(--border);font-size:11px">Viewer</span></p>
+      <p style="margin-top:14px">Roles válidos: <span class="rbadge" style="color:var(--accent);border:1px solid var(--accent);font-size:11px">Admin</span> &nbsp;<span class="rbadge" style="color:#8a7a3e;border:1px solid #8a7a3e;font-size:11px">Editor</span> &nbsp;<span class="rbadge" style="color:var(--muted);border:1px solid var(--border);font-size:11px">Viewer</span></p>
     </div>
   `;
 }
