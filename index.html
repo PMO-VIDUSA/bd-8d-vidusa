@@ -1236,7 +1236,10 @@ function bootApp() {
   rb.className = 'rbadge r-' + CU.role.toLowerCase();
 
   const cuRole = (CU.role||'').toLowerCase();
-  if (cuRole==='admin') document.getElementById('nav-users').classList.remove('admin-only');
+  if (cuRole==='admin') {
+    document.getElementById('nav-users').classList.remove('admin-only');
+    document.getElementById('nav-bitacora').classList.remove('admin-only');
+  }
   if (cuRole==='viewer') {
     document.getElementById('nav-new').style.display='none';
     document.getElementById('btn-new-dash').style.display='none';
