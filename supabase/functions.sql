@@ -63,6 +63,11 @@ $$;
 -- (evita que alguien falsifique su propio registro de auditoría).
 create or replace function log_bitacora()
 returns trigger language plpgsql security definer as $$
+declare
+  k text;
+  old_v text;
+  new_v text;
+  cambios text := '';
 begin
   if tg_op = 'INSERT' then
     insert into bitacora (usuario, accion, id_registro, detalle)
@@ -70,8 +75,20 @@ begin
             'Fraccionamiento: ' || coalesce(nullif(new.fraccionamiento, ''), '—'));
     return new;
   elsif tg_op = 'UPDATE' then
+    -- Detalle campo por campo: "campo: valor_viejo → valor_nuevo", solo de
+    -- las columnas que en verdad cambiaron (updated_at se excluye porque
+    -- siempre cambia y no aporta nada al historial).
+    for k in select jsonb_object_keys(to_jsonb(new)) loop
+      if k in ('updated_at', 'id_registro', 'folio') then continue; end if;
+      old_v := to_jsonb(old) ->> k;
+      new_v := to_jsonb(new) ->> k;
+      if old_v is distinct from new_v then
+        cambios := cambios || k || ': "' || coalesce(old_v, '') || '" → "' || coalesce(new_v, '') || '"; ';
+      end if;
+    end loop;
+    if cambios = '' then return new; end if; -- nada cambió de verdad, no ensucia la bitácora
     insert into bitacora (usuario, accion, id_registro, detalle)
-    values (coalesce(current_username(), ''), 'Editar', new.id_registro, '');
+    values (coalesce(current_username(), ''), 'Editar', new.id_registro, cambios);
     return new;
   elsif tg_op = 'DELETE' then
     insert into bitacora (usuario, accion, id_registro, detalle)

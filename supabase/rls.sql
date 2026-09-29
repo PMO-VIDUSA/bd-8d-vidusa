@@ -26,15 +26,14 @@ create policy registros_insert on registros_8d
   for insert to authenticated
   with check (current_rol() <> 'Viewer' and creado_por = current_username());
 
--- UPDATE: Admin, dueño (creado_por), o facilitador PMO asignado al folio.
+-- UPDATE: cualquier Editor o Admin puede editar cualquier folio (no solo el
+-- suyo) — los equipos rotan mucho de frente y la prioridad es que alguien
+-- pueda darle continuidad a un folio aunque no lo haya creado él. Viewer
+-- sigue sin poder editar nada.
 drop policy if exists registros_update on registros_8d;
 create policy registros_update on registros_8d
   for update to authenticated
-  using (
-    current_rol() = 'Admin'
-    or creado_por = current_username()
-    or es_facilitador_asignado(facilitador_bpo)
-  );
+  using (current_rol() <> 'Viewer');
 
 -- DELETE: solo Admin.
 drop policy if exists registros_delete on registros_8d;
