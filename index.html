@@ -317,6 +317,12 @@ th.f3{min-width:160px;width:160px}
 .tp-nosat{background:var(--err-bg);border-color:rgba(185,28,28,0.25);color:var(--err-tx)}
 .tp-nosat:hover{background:rgba(185,28,28,0.15)}
 
+/* ─── AVANCE (D1-D8) ─── */
+.avance-cell{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.avance-bar{width:64px;height:6px;background:var(--border);border-radius:0;flex-shrink:0;overflow:hidden}
+.avance-fill{height:100%;background:var(--accent);transition:width 0.3s ease}
+.avance-txt{font-family:var(--mono);font-size:10.5px;color:var(--text2);font-variant-numeric:tabular-nums}
+
 /* ─── STATUS BADGE ─── */
 .sbadge{display:inline-block;padding:3px 9px;border-radius:5px;font-size:11px;font-weight:700;letter-spacing:0.2px}
 .s-abierto{background:var(--warn-bg);color:var(--warn-tx);border:1px solid rgba(180,110,0,0.2)}
@@ -1283,6 +1289,7 @@ function buildHeaders() {
     else if(i===1){cls='f2';style='left:130px';}
     else if(i===2){cls='f3';style='left:210px';}
     colRow += `<th class="${cls}" ${style?`style="${style}"`:''}>${c.l}</th>`;
+    if (i===2) colRow += '<th style="min-width:150px">% Avance</th>';
   });
   colRow += '<th>Acciones</th>';
 
@@ -1299,9 +1306,28 @@ function buildSearchHeaders() {
     else if(i===1){cls='f2';style='left:130px';}
     else if(i===2){cls='f3';style='left:210px';}
     colRow += `<th class="${cls}" ${style?`style="${style}"`:''}>${c.l}</th>`;
+    if (i===2) colRow += '<th style="min-width:150px">% Avance</th>';
   });
   colRow += '<th>Acciones</th>';
   thead.innerHTML = `<tr>${colRow}</tr>`;
+}
+
+// % Avance = de las 8 D's del formato, cuántas ya tienen su campo
+// principal capturado. D5 cuenta como hecha si al menos 1 de las 8
+// acciones correctivas tiene texto (no se exige llenar las 8).
+function calcAvance(r) {
+  const checks = [
+    !!String(r.Equipo_Trabajo||'').trim(),               // D1 — Formar equipo
+    !!String(r.Descripcion_Problema||'').trim(),          // D2 — Descripción del problema
+    !!String(r.Accion_Contencion||'').trim(),             // D3 — Acción de contención
+    !!String(r.Causa_Raiz||'').trim(),                    // D4 — Causa raíz
+    [1,2,3,4,5,6,7,8].some(n=>String(r['Accion_Correctiva_'+n]||'').trim()), // D5
+    !!String(r.Verificacion_D6||'').trim(),                // D6 — Verificación
+    !!String(r.D7_Documentos_estandarizados||'').trim(),   // D7 — Estandarización
+    !!String(r.D8_Evaluacion_de_efectividad||'').trim(),   // D8 — Evaluación de efectividad
+  ];
+  const done = checks.filter(Boolean).length;
+  return { done, pct: Math.round(done/8*100) };
 }
 
 // ═══════════════════════════════════════════════
@@ -1402,7 +1428,7 @@ function buildRow(r) {
   const pendiente = PENDING_IDS.has(r.ID_Registro);
   const canEdit  = (isAdmin || isOwner || esFacilitadorAsignado) && !pendiente;
 
-  const cells = COLS.map((c,i) => {
+  const cellsArr = COLS.map((c,i) => {
     let cls='',style='';
     if(i===0){cls='f1';style='left:0';}
     else if(i===1){cls='f2';style='left:130px';}
@@ -1427,7 +1453,12 @@ function buildRow(r) {
       content = esc(val);
     }
     return `<td class="${cls}" ${style?`style="${style}"`:''}>${content}</td>`;
-  }).join('');
+  });
+
+  const av = calcAvance(r);
+  const avColor = av.pct===100 ? '#01C84C' : 'var(--accent)';
+  cellsArr.splice(3, 0, `<td><div class="avance-cell"><div class="avance-bar"><div class="avance-fill" style="width:${av.pct}%;background:${avColor}"></div></div><span class="avance-txt">${av.pct}% (${av.done}/8)</span></div></td>`);
+  const cells = cellsArr.join('');
 
   let acts = '';
   if (canEdit) {
