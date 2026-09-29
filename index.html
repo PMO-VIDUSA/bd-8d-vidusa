@@ -319,8 +319,9 @@ th.f3{min-width:160px;width:160px}
 
 /* ─── AVANCE (D1-D8) ─── */
 .avance-cell{display:flex;align-items:center;gap:8px;white-space:nowrap}
-.avance-bar{width:64px;height:6px;background:var(--border);border-radius:0;flex-shrink:0;overflow:hidden}
-.avance-fill{height:100%;background:var(--accent);transition:width 0.3s ease}
+.avance-ticks{display:flex;gap:2px;flex-shrink:0}
+.avance-tick{width:9px;height:16px;background:var(--card-solid);border:1px solid var(--border2);cursor:default}
+.avance-tick.done{border-width:1px}
 .avance-txt{font-family:var(--mono);font-size:10.5px;color:var(--text2);font-variant-numeric:tabular-nums}
 
 /* ─── STATUS BADGE ─── */
@@ -1285,7 +1286,7 @@ function buildHeaders() {
     else if(i===1){cls='f2';style='left:130px';}
     else if(i===2){cls='f3';style='left:210px';}
     colRow += `<th class="${cls}" ${style?`style="${style}"`:''}>${c.l}</th>`;
-    if (i===2) colRow += '<th style="min-width:150px">% Avance</th>';
+    if (i===2) colRow += '<th style="min-width:175px">% Avance</th>';
   });
   colRow += '<th>Acciones</th>';
 
@@ -1302,7 +1303,7 @@ function buildSearchHeaders() {
     else if(i===1){cls='f2';style='left:130px';}
     else if(i===2){cls='f3';style='left:210px';}
     colRow += `<th class="${cls}" ${style?`style="${style}"`:''}>${c.l}</th>`;
-    if (i===2) colRow += '<th style="min-width:150px">% Avance</th>';
+    if (i===2) colRow += '<th style="min-width:175px">% Avance</th>';
   });
   colRow += '<th>Acciones</th>';
   thead.innerHTML = `<tr>${colRow}</tr>`;
@@ -1311,6 +1312,11 @@ function buildSearchHeaders() {
 // % Avance = de las 8 D's del formato, cuántas ya tienen su campo
 // principal capturado. D5 cuenta como hecha si al menos 1 de las 8
 // acciones correctivas tiene texto (no se exige llenar las 8).
+const AVANCE_LABELS = [
+  'D1 — Formar equipo', 'D2 — Descripción del problema', 'D3 — Acción de contención',
+  'D4 — Causa raíz', 'D5 — Acción correctiva', 'D6 — Verificación',
+  'D7 — Estandarización', 'D8 — Evaluación de efectividad',
+];
 function calcAvance(r) {
   const checks = [
     !!String(r.Equipo_Trabajo||'').trim(),               // D1 — Formar equipo
@@ -1323,7 +1329,7 @@ function calcAvance(r) {
     !!String(r.D8_Evaluacion_de_efectividad||'').trim(),   // D8 — Evaluación de efectividad
   ];
   const done = checks.filter(Boolean).length;
-  return { done, pct: Math.round(done/8*100) };
+  return { done, pct: Math.round(done/8*100), checks };
 }
 
 // ═══════════════════════════════════════════════
@@ -1453,7 +1459,10 @@ function buildRow(r) {
 
   const av = calcAvance(r);
   const avColor = av.pct===100 ? '#01C84C' : 'var(--accent)';
-  cellsArr.splice(3, 0, `<td><div class="avance-cell"><div class="avance-bar"><div class="avance-fill" style="width:${av.pct}%;background:${avColor}"></div></div><span class="avance-txt">${av.pct}% (${av.done}/8)</span></div></td>`);
+  const ticks = av.checks.map((done,i) =>
+    `<span class="avance-tick${done?' done':''}" title="${esc(AVANCE_LABELS[i])}: ${done?'hecho':'pendiente'}" style="${done?`background:${avColor};border-color:${avColor}`:''}"></span>`
+  ).join('');
+  cellsArr.splice(3, 0, `<td><div class="avance-cell"><div class="avance-ticks">${ticks}</div><span class="avance-txt">${av.done}/8 · ${av.pct}%</span></div></td>`);
   const cells = cellsArr.join('');
 
   let acts = '';
