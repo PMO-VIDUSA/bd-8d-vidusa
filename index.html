@@ -1735,29 +1735,23 @@ function saveRec() {
       }
     });
   } else {
-    const tempId=data.ID_Registro;
-    // El ID_Registro que se ve aquí es un folio "adivinado" por el
-    // navegador (para no hacer esperar al usuario) — el servidor asigna
-    // el ID real y puede no coincidir si alguien más creó un folio casi
-    // al mismo tiempo. Mientras no se confirme, se bloquea Editar en ese
-    // folio: antes se podía dar clic a Editar con el ID adivinado, el
-    // servidor no lo encontraba ("No encontrado: ...") y el usuario no
-    // dueño/admin lo interpretaba como "no puedo editar mi propio folio".
-    PENDING_IDS.add(tempId);
-    DB.push(data);
-    saveCache(DB);
-    closeModal('rec-modal');
-    refreshDash();
-    toast('Registro creado');
+    // No se agrega a la tabla ni se avisa "Registro creado" hasta que el
+    // servidor confirme — antes se mostraba de inmediato y, si el INSERT
+    // fallaba, el usuario creía que su 8D existía pero al refrescar
+    // desaparecía. Si falla, el modal sigue abierto para no perder lo capturado.
+    const btn=document.querySelector('#rec-modal button[onclick="saveRec()"]');
+    if(btn){ if(btn.disabled) return; btn.disabled=true; }
     apiCreate(data).then(res=>{
-      PENDING_IDS.delete(tempId);
+      if(btn) btn.disabled=false;
       if(res && res.status==='ok' && res.id){
-        const idx=DB.findIndex(r=>r.ID_Registro===tempId);
-        if(idx>=0){ DB[idx].ID_Registro=res.id; DB[idx].Folio=res.folio||DB[idx].Folio; }
+        data.ID_Registro=res.id; data.Folio=res.folio||data.Folio;
+        DB.push(data);
         saveCache(DB);
+        closeModal('rec-modal');
         refreshDash();
-      } else {
-        toast('No se pudo confirmar el folio con el servidor. Actualiza la página.', 'er');
+        toast('Registro creado');
+      } else if(!res) {
+        toast('No se pudo conectar con el servidor. Intenta de nuevo.', 'er');
       }
     });
   }

@@ -55,7 +55,10 @@ begin
     n := nextval('registros_8d_folio_seq');
     f := lpad(n::text, 3, '0');
     idr := '8D-' || anio::text || '-' || f;
-    exit when not exists (select 1 from registros_8d where id_registro = idr);
+    -- Alias "r" obligatorio: sin él, "id_registro" choca con la columna
+    -- de salida del RETURNS TABLE y Postgres responde
+    -- 'column reference "id_registro" is ambiguous' (ningún folio se creaba).
+    exit when not exists (select 1 from registros_8d r where r.id_registro = idr);
   end loop;
   return query select idr, f;
 end;
